@@ -1,0 +1,25 @@
+
+name: Build ZIP package
+
+on:
+  workflow_dispatch:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create package archive
+        run: |
+          mkdir -p dist
+          zip -r dist/rhf-pakkeforlop-kreft_package.zip             R             scripts             config/USER_example.R             docs             README.md             LICENSE             -x 'output/*' '*.Rproj' '.Rproj.user/*' '*_cache_parquet/*' 'Runbook_*.txt' 'Utlevering_*.csv' 'Utlevering_*.xlsx' 'QC_*.csv' '*_lnr.csv'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rhf-package-zip
+          path: dist/rhf-pakkeforlop-kreft_package.zip
