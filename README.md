@@ -6,12 +6,8 @@ Dette repoet inneholder en modulbasert R-pipeline for å lage utleveringsfiler f
 - **STEP1**: Leser PowerBI-eksport (CSV) → lager **bestillingsfil** med NPRId.
 - **STEP2**: Leser returfil med løpenr (`*_lnr.csv`) → lager **utlevering** (CSV + Excel) + **Runbook**.
 
-## Viktig (public repo)
-- **Ikke legg inn interne stier eller servernavn** i filer som committes.
-- All bruker-spesifikk konfig legges i `config/USER_local.R` (ignoreres av git).
-- Ingen output/cacher/runbook/`*_lnr.csv` skal inn i git (se `.gitignore`).
 
-## Kom i gang (for ikke-kodere)
+## Kom i gang 
 1. Kopier `config/USER_example.R` → `config/USER_local.R`
 2. Åpne `config/USER_local.R` og fyll inn dine **lokale/intern** stier.
 3. Åpne `scripts/00_run.R` og trykk **Source**.
@@ -29,7 +25,7 @@ Dette repoet inneholder en modulbasert R-pipeline for å lage utleveringsfiler f
   - `months = c("YYYY-MM-01")`
 - Kjør `scripts/00_run.R`
 
-## Mappestruktur (anbefalt)
+## Mappestruktur 
 ```
 repo/
   scripts/00_run.R
