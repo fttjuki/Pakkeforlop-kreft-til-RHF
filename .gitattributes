@@ -1,0 +1,4 @@
+# Keep consistent line endings + UTF-8 for Norwegian letters
+*.R   text eol=lf working-tree-encoding=UTF-8
+*.md  text eol=lf
+*.txt text eol=lf working-tree-encoding=UTF-8

@@ -1,21 +1,47 @@
-# Pakkeforlop-kreft-til-RHF
-R-script basert på eksisterende SQL-skript for Pakkeforløp kreft til RHF (HSØ, HV, HMN). Målet er å automatisere arbeidsprosesser som i dag gjøres i SQL, slik at det blir mindre manuelt.
+# RHF Pakkeforløp kreft – R-pipeline (modulbasert)
 
-## Bakgrunn:
-Utvikler et R-script basert på eksisterende SQL-skript for Pakkeforløp kreft til RHF (HSØ, HV, HMN). Målet er å automatisere arbeidsprosesser som i dag gjøres i SQL, slik at det blir mindre manuelt. 
-## Slik foregår arbeidet i dag:
-•	Vi laster ned tre ferdiglagde datafiler fra Power BI, en for hvert RHF (HSØ, HV, HMN), for videre bearbeiding i SQL. Power BI-rapporten er laget for sluttbrukere som ikke leverer data videre, og filene kan derfor ikke videresendes direkte.
-•	Vi åpne hver av de tre Power BI-filene manuelt, slette første rad og kolonne M før de kan brukes i SQL.
-•	Hver måned må datoene oppdateres manuelt i SQL-koden.
-•	I mars må hele prosessen kjøres to ganger (først for januar, deretter for februar).
-•	Til slutt må filene lagres manuelt.
+Dette repoet inneholder en modulbasert R-pipeline for å lage utleveringsfiler for pakkeforløp kreft til RHF (HSØ, HV, HMN).
 
-##  Hva gjør R-scriptet automatisk:
-•	Leser inn de tre CSV-filene direkte og håndterer rad 1 og kolonne M automatisk.
-•	Kjører prosessen for alle tre RHF (HSØ, HV, HMN) i én operasjon via en R-loop.
-•	Håndterer datoer og mars-logikken automatisk, uten behov for manuelle endringer i koden.
-•	Søker etter manglende KommuneNr og fyller disse automatisk via databaseoppslag.
-•	Lagrer ferdige utleveringsfiler i riktig mappe via koding.
-•	Lager en enkel QC-oversikt, slik at vi raskt ser om tallene ser fornuftige ut.
-##  Alt vi trenger å gjøre er å trykke på “Source”-knappen i RStudio, så utføres hele prosessen automatisk.
+## Hva skriptet gjør
+- **STEP1**: Leser PowerBI-eksport (CSV) → lager **bestillingsfil** med NPRId.
+- **STEP2**: Leser returfil med løpenr (`*_lnr.csv`) → lager **utlevering** (CSV + Excel) + **Runbook**.
 
+## Viktig (public repo)
+- **Ikke legg inn interne stier eller servernavn** i filer som committes.
+- All bruker-spesifikk konfig legges i `config/USER_local.R` (ignoreres av git).
+- Ingen output/cacher/runbook/`*_lnr.csv` skal inn i git (se `.gitignore`).
+
+## Kom i gang (for ikke-kodere)
+1. Kopier `config/USER_example.R` → `config/USER_local.R`
+2. Åpne `config/USER_local.R` og fyll inn dine **lokale/intern** stier.
+3. Åpne `scripts/00_run.R` og trykk **Source**.
+
+### STEP1 (før bestilling av løpenr)
+- Sett i `config/USER_local.R`:
+  - `step = "STEP1"`
+  - `months = c("YYYY-MM-01")`
+- Kjør `scripts/00_run.R`
+
+### STEP2 (etter returfil)
+- Legg `*_lnr.csv` i `app_dir`.
+- Sett i `config/USER_local.R`:
+  - `step = "STEP2"`
+  - `months = c("YYYY-MM-01")`
+- Kjør `scripts/00_run.R`
+
+## Mappestruktur (anbefalt)
+```
+repo/
+  scripts/00_run.R
+  R/              # moduler
+  config/         # USER_example.R (commit), USER_local.R (ignored)
+  docs/           # veiledning
+  output/         # lokal output (ignored)
+```
+
+## Avhengigheter
+- Obligatorisk: `tidyverse`, `lubridate`, `DBI`, `odbc`
+- Valgfritt: `arrow` (parquet-cache), `openxlsx` eller `writexl` (Excel-export)
+
+## Lisens
+Legg inn ønsket lisens (f.eks. MIT) i `LICENSE`.
