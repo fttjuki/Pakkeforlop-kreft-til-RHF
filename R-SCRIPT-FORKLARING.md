@@ -4,7 +4,7 @@
 Dette dokumentet gir en forklaring på skriptet `Ny_versjon.R`. 
 
 ## Hva er `Ny_versjon.R`?
-`Ny_versjon.R` er et R-skript som utfører forskjellige operasjoner knyttet til dataanalyse og rapportering. Skriptet hjelper brukere med å behandle dataene sine på en effektiv måte, selv om de ikke har erfaring med å programmere.
+`Ny_versjon.R` er et R-skript som utfører forskjellige operasjoner knyttet til dataanalyse og rapportering. 
 
 ## Hvordan kjøre skriptet
 Før du kjører skriptet, må du sørge for at R og nødvendige biblioteker (pakker) er installert. Følg disse trinnene:
