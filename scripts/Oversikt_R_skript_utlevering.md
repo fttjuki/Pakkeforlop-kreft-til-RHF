@@ -449,3 +449,13 @@ main(USER)
 | **Bestilling** | Trekk ut unike pasientnummere, lag bestillingsfil til NPR |
 | **Levering** | Tar løpenummer fra NPR, fyller kommune/bydel fra databasen, lagrer ferdig filer |
 | **Kvalitet** | Sjekker mojibake (ødelagte tegn), validerer at alle får løpenummer |
+
+### Hvirdan å kjøre skript?
+### **1. Åpne R‑prosjektet – dobbeltklikk på .Rproj-filen.
+### ** 2. Åpne skriptet – klikk på Ny_versjon.R i filpanelet (eller dra den inn).
+### ** 3. Endre months – skriv inn riktig måned (f.eks. "2026-02-01").
+### ** 4. Endre step – velg STEP1 eller STEP2.
+### ** 5. Lagre – Ctrl+S.
+ ### ** 6. Kjør skriptet – klikk på Source-knappen øverst i høyre hjørne.
+ ### ** 7. Ferdig! 🚀
+
