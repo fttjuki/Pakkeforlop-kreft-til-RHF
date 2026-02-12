@@ -6,11 +6,7 @@ Dette dokumentet gir en forklaring på skriptet `Ny_versjon.R`.
 ## Hva er `Ny_versjon.R`?
 `Ny_versjon.R` er et R-skript som utfører forskjellige operasjoner knyttet til dataanalyse og rapportering. 
 
-## Hvordan kjøre skriptet
-Før du kjører skriptet, må du sørge for at R og nødvendige biblioteker (pakker) er installert. Følg disse trinnene:
-1. Åpne R eller RStudio.
-2. Naviger til mappen der `Ny_versjon.R` er lagret.
-3. Kjør skriptet ved å bruke kommandoen `source('Ny_versjon.R')`.
+')`.
 
 ## Beskrivelse av skriptets funksjoner
 Skriptet inneholder flere funksjoner som hver utfører spesifikke oppgaver:
