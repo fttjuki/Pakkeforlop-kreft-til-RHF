@@ -1,7 +1,7 @@
 # R-SCRIPT-FORKLARING
 
 ## Introduksjon
-Dette dokumentet gir en omfattende forklaring på skriptet `Ny_versjon.R`. Dette skriptet er utviklet for brukere uten programmeringskunnskaper, og formålet er å gjøre det enklere å forstå hva skriptet gjør og hvordan det fungerer.
+Dette dokumentet gir en forklaring på skriptet `Ny_versjon.R`. 
 
 ## Hva er `Ny_versjon.R`?
 `Ny_versjon.R` er et R-skript som utfører forskjellige operasjoner knyttet til dataanalyse og rapportering. Skriptet hjelper brukere med å behandle dataene sine på en effektiv måte, selv om de ikke har erfaring med å programmere.
