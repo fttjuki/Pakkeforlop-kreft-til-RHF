@@ -66,14 +66,12 @@ USER <- list(
 
 ---
 
-## 📑 7. Resultater og QC
-Etter STEP2: CSV per region i `out_dir`, f.eks.:
+## 📑 6. Resultater 
+Etter STEP2: CSV per RHF i `out_dir`, f.eks.:
 
-- `Utlevering_HSØ_des25.csv`
-- `Utlevering_HV_des25.csv`
-- `Utlevering_HMN_des25.csv`
+- `Utlevering_HSØ_nov25.csv`
+- `Utlevering_HV_nov25.csv`
+- `Utlevering_HMN_nov25.csv`
 
-Det kan også dukke opp QC‑filer, f.eks.:  
-`QC_missing_lopenr_NPRId_des25.csv` (viser NPRId uten løpenr som ble droppet).
 
 ---
