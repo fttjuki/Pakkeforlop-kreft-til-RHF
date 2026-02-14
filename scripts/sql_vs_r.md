@@ -291,20 +291,4 @@ if (nrow(missing_map) > 0) {
 
 ---
 
-## 4) «R erstatter ikke SQL» – et praktisk kompromiss
-Hvis M ønsker å beholde SQL for database‑logikk, kan R fortsatt gi gevinst som **driftsmotor**:
-- velger periode (months)
-- finner inputfiler
-- kjører likt for alle regioner
-- lagrer resultat + QC
 
-Dette følger også poenget i presentasjonen: SQL har flere manuelle steg, mens R kan automatisere dem (loop, dato‑logikk, automatisk lagring). citeturn1search1turn4search2turn5search1
-
----
-
-## 5) Lav‑risiko pilot (1 leveranse)
-1. Kjør SQL som i dag (referanse). citeturn6search1
-2. Kjør R med samme måned (STEP2). citeturn5search1turn4search2
-3. Sammenlign: antall rader per region + et par kontrollsummer.
-
-**Hvis det matcher:** Vi har bevist at vi kan spare tid og redusere risiko uten å endre faglig innhold. citeturn1search1turn6search1turn4search2
