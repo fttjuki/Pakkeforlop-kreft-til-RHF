@@ -1,294 +1,150 @@
-# SQL‑rutine vs R‑pipeline 
+# Notat til leder (enkelt språk): SQL‑rutine vs R‑pipeline
+*Mål: Vise forskjellen mellom dagens manuelle SQL‑rutine og en automatisert R‑pipeline, med eksempler fra begge. Fokus er drift: tid, risiko og kvalitet – ikke «programmering».*
 
-## 1) Kort oppsummering 
-- **I dag:** SQL‑scriptet krever at man endrer måned/år og filnavn manuelt, og gjør mange like steg for 3 RHF. 
-- **Med R:** Man endrer bare noen få innstillinger (USER), og trykker «Run». Resten går automatisk: riktig periode, riktig fil, alle regioner, lagring.
-- **Resultat:** Samme leveranseinnhold, men mindre manuelt arbeid og lavere feilrisiko. 
+## 1) Kort oppsummering (30 sek)
 
----
+**I dag:** SQL‑scriptet krever at man endrer måned/år og filnavn manuelt, og gjør mange like steg for flere regioner.  
+**Med R:** Man endrer bare noen få innstillinger (USER) og trykker «Run». Resten går automatisk: riktig periode, riktig fil, alle regioner, lagring og QC‑sjekk.  
+**Resultat:** Samme faglig innhold i leveransen, men mindre manuelt arbeid og lavere feilrisiko.
+
+## 1.1 Slik foregikk prosessen tidligere (manuelt)
+
+Denne delen beskriver hvordan prosessen foregikk før automatiseringen. Den viser hvorfor stabil drift med SQL var tidkrevende og håndarbeidsintensiv:
+
+- Tre CSV‑filer måtte lastes ned fra Power BI – én for hvert RHF (HSØ, HV, HMN).
+- Første rad måtte slettes manuelt fordi Power BI la inn en ekstra header‑linje.
+- Kolonne M måtte slettes manuelt fordi den ofte var tom eller ubrukelig.
+- Datoer måtte skrives inn manuelt i SQL‑koden, noe som skapte høy risiko for feil.
+- I mars måtte prosessen kjøres to ganger (for januar og februar) pga. manuelle endringer.
+- Alle CSV‑filer måtte åpnes og lagres manuelt etter at de var behandlet.
+- KommuneNr måtte fylles inn manuelt for rader der det manglet.
+
+R‑pipen eliminerer alle disse punktene ved å automatisere både filhåndtering, datovalg, rensing og kvalitetskontroller.
 
 ## 2) Hvor er «manuell risiko» i SQL‑rutinen? (konkrete eksempler)
 
 ### 2.1 Måned/år må endres manuelt (hver gang)
-SQL‑scriptet sier eksplisitt at perioden må endres hver måned/år. citeturn6search1
 
-```sql
-/*
-  Data for desember 2025. --må endres hver måned (og år)
-*/
+SQL‑scriptet krever manuell oppdatering av periode:
+
+```
+/* Data for desember 2025. --må endres hver måned (og år) */
 ```
 
-**Hvorfor dette er en risiko:**
-- Det er lett å glemme å oppdatere noe, eller oppdatere noe *delvis*. citeturn6search1
-
----
+**Risiko:** Ting kan glemmes, eller bare delvis oppdateres.
 
 ### 2.2 Måned ligger også i tabellnavn og filnavn
-SQL har månedsspesifikk tabell og forventer månedsspesifikk returfil fra Fihr. citeturn6search1
 
-```sql
-DROP TABLE IF EXISTS #NPRId_desember_2025; --måneden må endres hver måned
-
-BULK INSERT #NPRId_desember_2025 FROM '\\fihr.no\\...\\NPRId_RHF_Pakkeforløp_des25_lnr.csv'
+```
+DROP TABLE IF EXISTS #NPRId_desember_2025;
+BULK INSERT #NPRId_desember_2025
+FROM "\\fihr.no\...\NPRId_RHF_Pakkeforløp_des25_lnr.csv"
 ```
 
-**Hvorfor dette er en risiko:**
-- Tabellnavn + filnavn må «matche». En liten skrivefeil gir feil kjøring eller feil input. citeturn6search1
-
----
+**Risiko:** Tabellnavn og filnavn må matche perfekt → skrivefeil gir feil input eller stopp.
 
 ### 2.3 Samme innlesing gjentas tre ganger (HSØ/HV/HMN)
-SQL leser tre filer med tre nesten like blokker. citeturn6search1
 
-```sql
-BULK INSERT #RapportHSØ FROM '...RHF_HSØ.csv' WITH (FIRSTROW = 2);
-BULK INSERT #RapportHV  FROM '...RHF_HV.csv'  WITH (FIRSTROW = 2);
-BULK INSERT #RapportHMN FROM '...RHF_HMN.csv' WITH (FIRSTROW = 2);
+Tre nesten identiske blokker må vedlikeholdes:
+
+```
+BULK INSERT #RapportHSØ ...
+BULK INSERT #RapportHV ...
+BULK INSERT #RapportHMN ...
 ```
 
-**Hvorfor dette er en risiko:**
-- Endringer må gjøres flere steder → større sjanse for at regioner blir behandlet ulikt ved en feil. citeturn6search1
-
----
+**Risiko:** Endringer må gjøres tre ganger → høy sjanse for inkonsistens.
 
 ### 2.4 Manuell «feilretting» med hardkodede unntak
-SQL har hardkodede oppdateringer for enkelte NPRId/år der kommune mangler. citeturn6search1
 
-```sql
-UPDATE #Fiks_HSØ_Kom SET komnrhjem2 = '0906' WHERE NPRId = '3200706' AND aar = 2008;
-UPDATE #Fiks_HV_Kom  SET komnrhjem2 = '1135' WHERE NPRId = '3602577' AND aar = 2008;
+```
+UPDATE #Fiks_HSØ_Kom SET komnrhjem2 = '0906' WHERE ...
+UPDATE #Fiks_HV_Kom  SET komnrhjem2 = '1135' WHERE ...
 ```
 
-**Hvorfor dette er en risiko:**
-- Slike «spesialtilfeller» kan bli glemt eller kopiert feil i fremtiden. citeturn6search1
+**Risiko:** Hardkoding blir lett oversett, glemt eller misplassert.
 
----
+## 2b) Hvor mange ganger må man endre måned/dato i SQL – og hvor mye gjentar seg?
 
-## 2b)  Hvor mange ganger må man endre «måned/dato» i SQL – og hvor mye gjentar seg?
+**Kort:** SQL krever *minst 7 manuelle endringer per måned*, og har *tre parallelle kopier* av samme logikk → høy drift‑risiko.
 
-> **Kort og tydelig:** SQL: minst **7 manuelle endringer** + **3× kopiert logikk** per leveranse → **høy drift‑risiko**. citeturn6search1
+### 2b.1 Minst 7 steder per måned (ofte 8 i praksis)
 
-### 2b.1 Minst **7 steder** per måned (ofte 8 i praksis)
-I SQL‑rutinen ligger måned/år spredt i kommentar, tabellnavn, filnavn og i join‑punkter. Det betyr at man typisk må oppdatere **minst 7 steder** for én leveranse (ofte 8 hvis vi også teller «lagre med riktig månedsnavn»). citeturn6search1
+Eksempler på hvor dato/måned ligger spredt:
 
-**(1) Periode i kommentar (1 sted):**
-```sql
-/*
-  Data for desember 2025. --må endres hver måned (og år)
-*/
-```
-citeturn6search1
+- Kommentar
+- Tabellnavn
+- Filnavn
+- Både i innlesing og joins
+- Filnavn ved lagring
 
-**(2–4) Måned i tabellnavn/filnavn (minst 3 steder):**
-```sql
-DROP TABLE IF EXISTS #NPRId_desember_2025; --måneden må endres hver måned
-CREATE TABLE #NPRId_desember_2025 ( ... );
-BULK INSERT #NPRId_desember_2025 FROM '\\fihr.no\\...\\NPRId_RHF_Pakkeforløp_des25_lnr.csv'
-```
-citeturn6search1
+### 2b.2 Hvor mye gjentas for HSØ/HV/HMN?
 
-**(5–7) Den samme månedstabellen brukes i 3 utleveringer (3 steder):**
-```sql
--- HSØ
-LEFT JOIN #NPRId_desember_2025 AS b ON a.NPRId = b.NPRId
--- HV
-LEFT JOIN #NPRId_desember_2025 AS b ON a.NPRId = b.NPRId
--- HMN
-LEFT JOIN #NPRId_desember_2025 AS b ON a.NPRId = b.NPRId
-```
-citeturn6search1
+For hver region (3 ganger) gjentas:
 
-**(8 – ofte i praksis) Manuell navngiving ved lagring:**
-```sql
-SELECT * FROM #NPRId WHERE NPRId IS NOT NULL;
--- (Lagre som "NPRId_RHF_Pakkeforløp_des25" i Uttrekksmappa)
-```
-citeturn6search1
+- **Innlesing:** DROP + CREATE + BULK INSERT  
+- **Kommune‑fiks:** bygge #Kom og #Fiks_Kom  
+- **Utlevering:** SELECT ... INTO #Region  
+- **Kontroller:** månedssjekk + antall rader
 
----
-
-### 2b.2 Hvor mange ganger gjentas samme prosess for HSØ/HV/HMN i SQL?
-SQL‑rutinen kopierer samme mønster for hver region. I én leveranse blir det repetisjon i flere hovedsteg: innlesing, kommune‑fiks, utlevering og kontroll. citeturn6search1
-
-**a) Innlesing (DROP + CREATE + BULK INSERT) gjentas 3 ganger:**
-```sql
--- HSØ
-DROP TABLE IF EXISTS #RapportHSØ;
-CREATE TABLE #RapportHSØ ( ... );
-BULK INSERT #RapportHSØ FROM '...RHF_HSØ.csv' WITH (FIRSTROW = 2);
-
--- HV
-DROP TABLE IF EXISTS #RapportHV;
-CREATE TABLE #RapportHV ( ... );
-BULK INSERT #RapportHV  FROM '...RHF_HV.csv'  WITH (FIRSTROW = 2);
-
--- HMN
-DROP TABLE IF EXISTS #RapportHMN;
-CREATE TABLE #RapportHMN ( ... );
-BULK INSERT #RapportHMN FROM '...RHF_HMN.csv' WITH (FIRSTROW = 2);
-```
-citeturn6search1
-
-**b) Kommune‑fiks (bygg #*_Kom og #Fiks_*_Kom) gjentas 3 ganger:**
-```sql
--- HSØ
-DROP TABLE IF EXISTS #HSØ_Kom;
-... INTO #HSØ_Kom ... WHERE KommuneNr IS NULL;
-DROP TABLE IF EXISTS #Fiks_HSØ_Kom;
-... INTO #Fiks_HSØ_Kom ... FROM SOMHoved ...;
-
--- HV
-DROP TABLE IF EXISTS #HV_Kom;
-... INTO #HV_Kom ... WHERE KommuneNr IS NULL;
-DROP TABLE IF EXISTS #Fiks_HV_Kom;
-... INTO #Fiks_HV_Kom ... FROM SOMHoved ...;
-
--- HMN
-DROP TABLE IF EXISTS #HMN_Kom;
-... INTO #HMN_Kom ... WHERE KommuneNr IS NULL;
-DROP TABLE IF EXISTS #Fiks_HMN_Kom;
-... INTO #Fiks_HMN_Kom ... FROM SOMHoved ...;
-```
-citeturn6search1
-
-**c) Utlevering (SELECT … INTO #Region … JOIN … WHERE …) gjentas 3 ganger:**
-```sql
--- HSØ
-DROP TABLE IF EXISTS #HSØ;
-SELECT ... INTO #HSØ
-FROM #RapportHSØ a
-LEFT JOIN #NPRId_desember_2025 b ON a.NPRId=b.NPRId
-LEFT JOIN #Fiks_HSØ_Kom c ON a.NPRId=c.NPRId
-WHERE b.lopenr != 'NULL' AND a.NPRId != 'NPRId';
-
--- HV
-DROP TABLE IF EXISTS #HV;
-SELECT ... INTO #HV
-FROM #RapportHV a
-LEFT JOIN #NPRId_desember_2025 b ON a.NPRId=b.NPRId
-LEFT JOIN #Fiks_HV_Kom c ON a.NPRId=c.NPRId
-WHERE b.lopenr != 'NULL' AND a.NPRId != 'NPRId';
-
--- HMN
-DROP TABLE IF EXISTS #HMN;
-SELECT ... INTO #HMN
-FROM #RapportHMN a
-LEFT JOIN #NPRId_desember_2025 b ON a.NPRId=b.NPRId
-LEFT JOIN #Fiks_HMN_Kom c ON a.NPRId=c.NPRId
-WHERE b.lopenr != 'NULL' AND a.NPRId != 'NPRId';
-```
-citeturn6search1
-
-**d) Kontroller (MONTH(StartDato) …) gjentas 3 ganger:**
-```sql
-SELECT MONTH(StartDato) AS måned, count(*) AS AntallRader
-FROM #HSØ WHERE År = 2025 GROUP BY MONTH(StartDato);
-
-SELECT MONTH(StartDato) AS måned, count(*) AS AntallRader
-FROM #HV WHERE År = 2025 GROUP BY MONTH(StartDato);
-
-SELECT MONTH(StartDato) AS måned, count(*) AS AntallRader
-FROM #HMN WHERE År = 2025 GROUP BY MONTH(StartDato);
-```
-citeturn6search1
-
-**Lederpoeng:** Når samme ting gjentas 3 ganger, øker risikoen for små forskjeller og mer vedlikehold. R gjør dette i én loop med felles regler. citeturn4search2turn5search1
-
----
+Dette skaper både mye vedlikehold og høy risiko for at én region blir behandlet annerledes enn de andre.
 
 ## 3) Hva gjør R‑pipeline smartere (og tryggere)?
 
-### 3.1 I R endrer man bare én ting: USER‑innstillinger (ikke masse kode)
-Startfila sier tydelig at USER‑listen er det eneste man normalt skal endre. citeturn5search1
+### 3.1 I R endrer man bare USER‑innstillinger
 
 ```r
 USER <- list(
-  step   = "STEP2",
+  step = "STEP2",
   months = c("2025-12-01"),
-  base_dir = "N:/.../R",
-  app_dir  = "//fihr.no/dfs/NPR/Temp/NPR_RegistrerUtlevering",
-  out_dir  = "N:/.../R",
+  base_dir = "...",
+  out_dir = "...",
   strict_input = TRUE
 )
 ```
 
-**Hvorfor dette er smart:**
-- «Måned» settes som en dato én gang.
-- Koden bruker dette konsekvent videre. citeturn5search1turn4search2
+### 3.2 Smart datohåndtering
 
----
+Suffix som `des25` lages automatisk fra datoen → ingen manuell skriving.
 
-### 3.2 Smart kalender: lager `des25` automatisk fra dato
-I R lages fil‑suffix automatisk fra `months` (YYYY‑MM‑01). citeturn5search1turn4search2
+### 3.3 Loop: Én logikk, flere regioner
 
 ```r
-month_to_suffix <- function(month_date) {
-  d <- as.Date(month_date)
-  paste0(CFG$months_nor[lubridate::month(d)], format(d, "%y"))
-}
+regions = c("HSØ", "HV", "HMN")
 ```
 
-**Hvorfor dette er smart:**
-- Man slipper å skrive `des25` manuelt i flere filnavn.
-- Mindre risiko for at bestilling/retur/utlevering får ulike navn. citeturn4search2turn5search1
+Én definisjon → behandles automatisk og likt.
 
----
+### 3.4 Oppdager feil filer automatisk
 
-### 3.3 Loop: samme behandling for alle regioner automatisk
-R har regionliste én gang, og behandler alle likt. citeturn4search2
+R sjekker at korrekt fil finnes. Hvis ikke → stopp med god feilmelding.
 
-```r
-CFG <- list(regions = c("HSØ", "HV", "HMN"))
+### 3.5 Automatisk håndtering av æøå og encoding-feil
 
-region_objs <- set_names(CFG$regions) |> 
-  map(~ load_region_dataset(USER, .x, suffix)) |> 
-  discard(is.null)
-```
+R reparerer kjente «mølje‑tekst»-problemer før prosessering.
 
-**Hvorfor dette er smart:**
-- Ingen «tre separate kjøringer».
-- Endringer gjøres én gang. citeturn4search2
+### 3.6 QC: R lager avvikslister og kan stoppe
 
----
+Hvis NPRId mangler løpenr → skrives QC‑fil + valg om å stoppe.
 
-### 3.4 R finner riktig inputfil og kan stoppe hvis noe mangler
-Dette reduserer risikoen for å bruke feil fil eller feil periode. citeturn5search1turn4search2
+## 4) «R erstatter ikke SQL» – et praktisk kompromiss
 
-```r
-if (length(hits) == 0 && isTRUE(USER$strict_input)) {
-  stop_user("Fant ingen suffix-fil for %s (suffix=%s).", region, suffix)
-}
-```
+SQL kan fortsatt gjøre databasearbeidet.  
+R tar driftsjobben:
 
----
+- velger periode
+- finner filene
+- kjører likt for alle regioner
+- lagrer resultat
+- QC‑sjekker
 
-### 3.5 Norske tegn (æøå): R håndterer encoding og reparerer typiske feil
-R har logikk for å oppdage/rette «Ã¦/Ã¸»‑problemer. citeturn4search2
+→ Mindre manuelt arbeid, mindre risiko, samme faglige innhold.
 
-```r
-fix_mojibake_utf8 <- function(x) {
-  idx <- !is.na(x) & str_detect(x, "[ÃÂ]")
-  if (any(idx)) {
-    y <- iconv(x[idx], from = "Windows-1252", to = "UTF-8")
-    x[idx][!is.na(y)] <- y[!is.na(y)]
-  }
-  x
-}
-```
+## 5) Lav‑risiko pilot (1 leveranse)
 
----
+1. Kjør SQL som i dag (referanse).  
+2. Kjør R med samme måned.  
+3. Sammenlign radtall og kontrollsummer.
 
-### 3.6 QC: R kan automatisk lage avvikslister (f.eks. mangler løpenr)
-R kan skrive en QC‑fil med NPRId som mangler løpenr, og eventuelt stoppe. citeturn4search2turn5search1
-
-```r
-if (nrow(missing_map) > 0) {
-  miss_path <- file.path(USER$out_dir, paste0("QC_missing_lopenr_NPRId_", suffix, ".csv"))
-  write_csv(missing_map, miss_path)
-  if (isTRUE(USER$strict_lopenr)) stop_user("STOPP: mangler løpenr")
-}
-```
-
----
-
-
+**Hvis det matcher:**  
+→ Vi sparer tid, reduserer risiko og får en tryggere drift uten å endre faglig innhold.
