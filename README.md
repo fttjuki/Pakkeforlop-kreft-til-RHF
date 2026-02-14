@@ -41,7 +41,7 @@ BULK INSERT #NPRId_desember_2025 FROM '\\fihr.no\\...\\NPRId_RHF_Pakkeforløp_de
 ---
 
 ### 2.3 Samme innlesing gjentas tre ganger (HSØ/HV/HMN)
-SQL leser tre filer med tre nesten like blokker. citeturn6search1
+SQL leser tre filer med tre nesten like blokker. 
 
 ```sql
 BULK INSERT #RapportHSØ FROM '...RHF_HSØ.csv' WITH (FIRSTROW = 2);
