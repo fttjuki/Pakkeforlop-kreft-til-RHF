@@ -66,9 +66,9 @@ UPDATE #Fiks_HV_Kom  SET komnrhjem2 = '1135' WHERE NPRId = '3602577' AND aar = 2
 - Slike «spesialtilfeller» kan bli glemt eller kopiert feil i fremtiden. 
 ---
 
-## 2b) Hvor mange ganger må man endre «måned/dato» i SQL – og hvor mye gjentar seg?
+## 2b) Hvor mange ganger må man endre «måned/dato» i SQL og hvor mye gjentar seg?
 
-### I SQL: minst 7 manuelle endringer** + 3× kopiert logikk per leveranse. 
+### I SQL: minst 7 manuelle endringer + 3× kopiert logikk per leveranse. 
 
 ### 2b.1 Minst **7 steder** per måned (ofte 8 i praksis)
 I SQL‑rutinen ligger måned/år spredt i kommentar, tabellnavn, filnavn og i join‑punkter. Det betyr at man typisk må oppdatere **minst 7 steder** for én leveranse (ofte 8 hvis vi også teller «lagre med riktig månedsnavn»). 
