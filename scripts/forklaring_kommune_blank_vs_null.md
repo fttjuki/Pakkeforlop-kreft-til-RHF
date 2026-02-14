@@ -1,12 +1,12 @@
 # Hvorfor R får 0 manglende KommuneNr, men SQL får 14
 
-Dette er en **ikke-teknisk** forklaring med **små dataeksempler**.
+
 
 ---
 
-## 1) To typer «tomt» som ser like ut i Excel
+## 1) To typer «tomt» som ser like ut i Excel/csv
 
-I Excel ser begge disse ofte ut som **blanke celler** ("(Blanks)"):
+I Excel/csv ser begge disse ofte ut som **blanke celler** ("(Blanks)"):
 
 ### A) **Tom celle** (ingen tegn)
 - Det står **ingenting** i feltet.
