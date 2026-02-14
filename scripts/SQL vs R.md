@@ -5,7 +5,7 @@
 -  Kolonne M slettes manuelt fordi den ofte var tom eller ubrukelig.
 -  Datoer skrives inn manuelt i SQL‑koden, noe som skapte høy risiko for feil.
 -  I mars må prosessen kjøres to ganger (for januar og februar) pga. manuelle endringer.
--  Alle CSV‑filer åpnes og lagres manuelt etter at de var behandlet.
+-  Alle resultat-tabeller lagres manuelt.
 -  KommuneNr fylles inn manuelt for rader der det manglet.
 
 ---
