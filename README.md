@@ -1,140 +1,284 @@
+#  SQL‑rutine vs R‑pipeline 
 
-# RHF Pakkeforløp Kreft – Modulbasert R‑pipeline
-
-Denne repositoriet inneholder en modulbasert R‑pipeline som erstatter den gamle, manuelle SQL‑baserte prosessen som brukes for å lage utleveringsfiler for Pakkeforløp Kreft til RHF (HSØ, HV, HMN). Løsningen er laget for å redusere manuelt arbeid, sikre kvalitet, og gjøre prosessen enklere for brukere uten erfaring med R.
-
----
-
-## 🏥 Bakgrunn – hvordan den gamle løsningen fungerte
-
-I den tidligere arbeidsflyten ble data behandlet **manuelt** gjennom flere trinn før de kunne brukes til utlevering. Dette skapte risiko for feil, stort tidsforbruk og manglende sporbarhet.
-
-### 🔧 Slik foregikk prosessen tidligere (manuelt)
-
-1. **Tre CSV‑filer måtte lastes ned fra Power BI** – én for hvert RHF (HSØ, HV, HMN).
-2. **Første rad måtte slettes manuelt** i alle tre filer fordi Power BI skrev en ekstra header‑linje.
-3. **Kolonne M måtte slettes manuelt** fordi den ofte var tom/ubrukelig.
-4. **Datoer måtte skrives inn manuelt i SQL‑koden**, noe som skapte fare for feil.
-5. I **mars måtte prosessen gjøres to ganger** (for januar og februar) via manuelle kodeendringer.
-6. **Alle CSV‑filer måtte åpnes og lagres manuelt** etter behandling.
-7. **KommuneNr måtte fylles inn manuelt** for rader som manglet dette.
-8. Ingen automatisk validering – bare manuell visuell kontroll.
-9. Prosessen var **tung, tidkrevende og vanskelig å verifisere** for personer uten SQL‑kompetanse.
-
-### ❗ Utfordringer med den manuelle prosessen
-- Høy risiko for menneskelige feil
-- Inkonsekvent databehandling
-- Avhengighet av enkeltpersoner med SQL‑kompetanse
-- Ingen automatisk logging eller dokumentasjon
-- Tidkrevende hver måned – spesielt i mars
-- Vanskelig å gjenskape eller kontrollere tidligere leveranser
+## 1) process i dag
+-  Første rad slettes manuelt fordi Power BI la inn en ekstra header‑linje.
+-  Kolonne M slettes manuelt fordi den ofte var tom eller ubrukelig.
+-  Datoer skrives inn manuelt i SQL‑koden, noe som skapte høy risiko for feil.
+-  I mars må prosessen kjøres to ganger (for januar og februar) pga. manuelle endringer.
+-  Alle resultat-tabeller lagres manuelt.
+-  KommuneNr fylles inn manuelt for rader der det manglet.
 
 ---
 
-## 🚀 Den nye R‑løsningen – fullautomatisert og sporbar
+## 2) Hvor er «manuell risiko» i SQL‑rutinen? 
 
-R‑pipeline erstatter hele den manuelle SQL‑prosessen med én knapp i RStudio.
+### 2.1 Måned/år må endres manuelt (hver gang)
+SQL‑scriptet sier eksplisitt at perioden må endres hver måned/år. citeturn6search1
 
-### ✔ Hva R‑scriptet gjør automatisk
+```sql
+/*
+  Data for desember 2025. --må endres hver måned (og år)
+*/
+```
 
-- Leser alle tre Power BI‑CSV‑filer direkte
-- Fjerner første rad automatisk
-- Fjerner kolonne M hvis den er tom
-- Standardiserer kolonnenavn
-- Kjør komplett prosess for alle RHF i én loop
-- Automatisk håndtering av datoer og mars‑logikken
-- Slår sammen alle data til én samlet tabell
-- Lager bestillingsfil (STEP1)
-- Leser inn `*_lnr.csv` (STEP2)
-- Fyller manglende KommuneNr fra database
-- Lager ferdige utleveringsfiler i:
-  - CSV (UTF‑8 BOM – støtter æ/ø/å i Excel)
-  - Excel (.xlsx)
-- Lager QC‑oversikt
-- Lager detaljert runbook som dokumenterer **alt** som skjedde
-
-Alt du trenger er å trykke **Source**.
+**Hvorfor dette er en risiko:**
+- Det er lett å glemme å oppdatere noe, eller oppdatere noe *delvis*. citeturn6search1
 
 ---
 
-## 🧭 Kom i gang
+### 2.2 Måned ligger også i tabellnavn og filnavn
+SQL har månedsspesifikk tabell og forventer månedsspesifikk returfil fra Fihr. 
 
-### 1. Lag lokal konfigurasjon
-Kopier:
-```
-config/USER_example.R → config/USER_local.R
-```
-Rediger `USER_local.R` og fyll inn dine lokale stier.
+```sql
+DROP TABLE IF EXISTS #NPRId_desember_2025; --måneden må endres hver måned
 
-> `USER_local.R` er ignorert av git, så du kan trygt legge inn interne filbaner.
+BULK INSERT #NPRId_desember_2025 FROM '\\fihr.no\\...\\NPRId_RHF_Pakkeforløp_des25_lnr.csv'
+```
 
-### 2. Kjør skriptet
-Åpne i RStudio:
-```
-scripts/00_run.R
-```
-Trykk **Source**.
+**Hvorfor dette er en risiko:**
+- Tabellnavn + filnavn må «matche». En liten skrivefeil gir feil kjøring eller feil input. 
 
 ---
 
-## ▶️ STEP1 – før du bestiller løpenummer
-I `USER_local.R`, sett:
+### 2.3 Samme innlesing gjentas tre ganger (HSØ/HV/HMN)
+SQL leser tre filer med tre nesten like blokker. citeturn6search1
+
+```sql
+BULK INSERT #RapportHSØ FROM '...RHF_HSØ.csv' WITH (FIRSTROW = 2);
+BULK INSERT #RapportHV  FROM '...RHF_HV.csv'  WITH (FIRSTROW = 2);
+BULK INSERT #RapportHMN FROM '...RHF_HMN.csv' WITH (FIRSTROW = 2);
+```
+
+**Hvorfor dette er en risiko:**
+- Endringer må gjøres flere steder → større sjanse for at regioner blir behandlet ulikt ved en feil. 
+
+---
+
+### 2.4 Manuell «feilretting» med hardkodede unntak
+SQL har hardkodede oppdateringer for enkelte NPRId/år der kommune mangler. 
+
+```sql
+UPDATE #Fiks_HSØ_Kom SET komnrhjem2 = '0906' WHERE NPRId = '3200706' AND aar = 2008;
+UPDATE #Fiks_HV_Kom  SET komnrhjem2 = '1135' WHERE NPRId = '3602577' AND aar = 2008;
+```
+
+**Hvorfor dette er en risiko:**
+- Slike «spesialtilfeller» kan bli glemt eller kopiert feil i fremtiden. 
+---
+
+## 2b) (NYTT) Hvor mange ganger må man endre «måned/dato» i SQL – og hvor mye gjentar seg?
+
+> **Kort og tydelig:** SQL: minst **7 manuelle endringer** + **3× kopiert logikk** per leveranse → **høy drift‑risiko**. 
+
+### 2b.1 Minst **7 steder** per måned (ofte 8 i praksis)
+I SQL‑rutinen ligger måned/år spredt i kommentar, tabellnavn, filnavn og i join‑punkter. Det betyr at man typisk må oppdatere **minst 7 steder** for én leveranse (ofte 8 hvis vi også teller «lagre med riktig månedsnavn»). 
+**(1) Periode i kommentar (1 sted):**
+```sql
+/*
+  Data for desember 2025. --må endres hver måned (og år)
+*/
+```
+
+
+**(2–4) Måned i tabellnavn/filnavn (minst 3 steder):**
+```sql
+DROP TABLE IF EXISTS #NPRId_desember_2025; --måneden må endres hver måned
+CREATE TABLE #NPRId_desember_2025 ( ... );
+BULK INSERT #NPRId_desember_2025 FROM '\\fihr.no\\...\\NPRId_RHF_Pakkeforløp_des25_lnr.csv'
+```
+
+**(5–7) Den samme månedstabellen brukes i 3 utleveringer (3 steder):**
+```sql
+-- HSØ
+LEFT JOIN #NPRId_desember_2025 AS b ON a.NPRId = b.NPRId
+-- HV
+LEFT JOIN #NPRId_desember_2025 AS b ON a.NPRId = b.NPRId
+-- HMN
+LEFT JOIN #NPRId_desember_2025 AS b ON a.NPRId = b.NPRId
+```
+
+
+**(8 – ofte i praksis) Manuell navngiving ved lagring:**
+```sql
+SELECT * FROM #NPRId WHERE NPRId IS NOT NULL;
+-- (Lagre som "NPRId_RHF_Pakkeforløp_des25" i Uttrekksmappa)
+```
+
+
+---
+
+### 2b.2 Hvor mange ganger gjentas samme prosess for HSØ/HV/HMN i SQL?
+SQL‑rutinen kopierer samme mønster for hver region. I én leveranse blir det repetisjon i flere hovedsteg: innlesing, kommune‑fiks, utlevering og kontroll. 
+**a) Innlesing (DROP + CREATE + BULK INSERT) gjentas 3 ganger:**
+```sql
+-- HSØ
+DROP TABLE IF EXISTS #RapportHSØ;
+CREATE TABLE #RapportHSØ ( ... );
+BULK INSERT #RapportHSØ FROM '...RHF_HSØ.csv' WITH (FIRSTROW = 2);
+
+-- HV
+DROP TABLE IF EXISTS #RapportHV;
+CREATE TABLE #RapportHV ( ... );
+BULK INSERT #RapportHV  FROM '...RHF_HV.csv'  WITH (FIRSTROW = 2);
+
+-- HMN
+DROP TABLE IF EXISTS #RapportHMN;
+CREATE TABLE #RapportHMN ( ... );
+BULK INSERT #RapportHMN FROM '...RHF_HMN.csv' WITH (FIRSTROW = 2);
+```
+
+**b) Kommune‑fiks (bygg #*_Kom og #Fiks_*_Kom) gjentas 3 ganger:**
+```sql
+-- HSØ
+DROP TABLE IF EXISTS #HSØ_Kom;
+... INTO #HSØ_Kom ... WHERE KommuneNr IS NULL;
+DROP TABLE IF EXISTS #Fiks_HSØ_Kom;
+... INTO #Fiks_HSØ_Kom ... FROM SOMHoved ...;
+
+-- HV
+DROP TABLE IF EXISTS #HV_Kom;
+... INTO #HV_Kom ... WHERE KommuneNr IS NULL;
+DROP TABLE IF EXISTS #Fiks_HV_Kom;
+... INTO #Fiks_HV_Kom ... FROM SOMHoved ...;
+
+-- HMN
+DROP TABLE IF EXISTS #HMN_Kom;
+... INTO #HMN_Kom ... WHERE KommuneNr IS NULL;
+DROP TABLE IF EXISTS #Fiks_HMN_Kom;
+... INTO #Fiks_HMN_Kom ... FROM SOMHoved ...;
+```
+
+**c) Utlevering (SELECT … INTO #Region … JOIN … WHERE …) gjentas 3 ganger:**
+```sql
+-- HSØ
+DROP TABLE IF EXISTS #HSØ;
+SELECT ... INTO #HSØ
+FROM #RapportHSØ a
+LEFT JOIN #NPRId_desember_2025 b ON a.NPRId=b.NPRId
+LEFT JOIN #Fiks_HSØ_Kom c ON a.NPRId=c.NPRId
+WHERE b.lopenr != 'NULL' AND a.NPRId != 'NPRId';
+
+-- HV
+DROP TABLE IF EXISTS #HV;
+SELECT ... INTO #HV
+FROM #RapportHV a
+LEFT JOIN #NPRId_desember_2025 b ON a.NPRId=b.NPRId
+LEFT JOIN #Fiks_HV_Kom c ON a.NPRId=c.NPRId
+WHERE b.lopenr != 'NULL' AND a.NPRId != 'NPRId';
+
+-- HMN
+DROP TABLE IF EXISTS #HMN;
+SELECT ... INTO #HMN
+FROM #RapportHMN a
+LEFT JOIN #NPRId_desember_2025 b ON a.NPRId=b.NPRId
+LEFT JOIN #Fiks_HMN_Kom c ON a.NPRId=c.NPRId
+WHERE b.lopenr != 'NULL' AND a.NPRId != 'NPRId';
+```
+citeturn6search1
+
+**d) Kontroller (MONTH(StartDato) …) gjentas 3 ganger:**
+```sql
+SELECT MONTH(StartDato) AS måned, count(*) AS AntallRader
+FROM #HSØ WHERE År = 2025 GROUP BY MONTH(StartDato);
+
+SELECT MONTH(StartDato) AS måned, count(*) AS AntallRader
+FROM #HV WHERE År = 2025 GROUP BY MONTH(StartDato);
+
+SELECT MONTH(StartDato) AS måned, count(*) AS AntallRader
+FROM #HMN WHERE År = 2025 GROUP BY MONTH(StartDato);
+```
+citeturn6search1
+
+**Lederpoeng:** Når samme ting gjentas 3 ganger, øker risikoen for små forskjeller og mer vedlikehold. R gjør dette i én loop med felles regler. 
+---
+
+## 3) Hva gjør R‑pipeline smartere (og tryggere)?
+
+### 3.1 I R endrer man bare én ting: USER‑innstillinger (ikke masse kode)
+Startfila sier tydelig at USER‑listen er det eneste man normalt skal endre. 
 ```r
-step   = "STEP1"
-months = c("YYYY-MM-01")
+USER <- list(
+  step   = "STEP2",
+  months = c("2025-12-01"),
+  base_dir = "N:/.../R",
+  app_dir  = "//fihr.no/dfs/NPR/Temp/NPR_RegistrerUtlevering",
+  out_dir  = "N:/.../R",
+  strict_input = TRUE
+)
 ```
-Kjør:
-```
-scripts/00_run.R
-```
-Output: bestillingsfil for NPRId.
 
+**Hvorfor dette er smart:**
+- «Måned» settes som en dato én gang.
+- Koden bruker dette konsekvent videre. 
 ---
 
-## ▶️ STEP2 – etter at du mottar returfil
-Plasser `*_lnr.csv` i `app_dir`.
-
-I `USER_local.R`, sett:
+### 3.2 Smart kalender: lager `des25` automatisk fra dato
+I R lages fil‑suffix automatisk fra `months` (YYYY‑MM‑01). 
 ```r
-step   = "STEP2"
-months = c("YYYY-MM-01")
+month_to_suffix <- function(month_date) {
+  d <- as.Date(month_date)
+  paste0(CFG$months_nor[lubridate::month(d)], format(d, "%y"))
+}
 ```
-Kjør:
-```
-scripts/00_run.R
-```
-Output:
-- Utlevering (CSV + Excel)
-- QC
-- Runbook
+
+**Hvorfor dette er smart:**
+- Man slipper å skrive `des25` manuelt i flere filnavn.
+- Mindre risiko for at bestilling/retur/utlevering får ulike navn. citeturn4search2turn5search1
 
 ---
 
-## 📁 Mappestruktur
+### 3.3 Loop: samme behandling for alle regioner automatisk
+R har regionliste én gang, og behandler alle likt. 
+```r
+CFG <- list(regions = c("HSØ", "HV", "HMN"))
+
+region_objs <- set_names(CFG$regions) |> 
+  map(~ load_region_dataset(USER, .x, suffix)) |> 
+  discard(is.null)
 ```
-repo/
-  scripts/00_run.R
-  R/              # moduler
-  config/         # USER_example.R (commit), USER_local.R (ignored)
-  docs/           # veiledning
-  output/         # lokal output (ignored)
+
+**Hvorfor dette er smart:**
+- Ingen «tre separate kjøringer».
+- Endringer gjøres én gang. 
+
+---
+
+### 3.4 R finner riktig inputfil og kan stoppe hvis noe mangler
+Dette reduserer risikoen for å bruke feil fil eller feil periode. citeturn5search1turn4search2
+
+```r
+if (length(hits) == 0 && isTRUE(USER$strict_input)) {
+  stop_user("Fant ingen suffix-fil for %s (suffix=%s).", region, suffix)
+}
 ```
 
 ---
 
-## 📦 Avhengigheter
-**Obligatorisk:**
-- tidyverse
-- lubridate
-- DBI
-- odbc
-
-**Valgfritt:**
-- arrow (parquet‑cache)
-- openxlsx eller writexl (Excel‑eksport)
+### 3.5 Norske tegn (æøå): R håndterer encoding og reparerer typiske feil
+R har logikk for å oppdage/rette «Ã¦/Ã¸»‑problemer. 
+```r
+fix_mojibake_utf8 <- function(x) {
+  idx <- !is.na(x) & str_detect(x, "[ÃÂ]")
+  if (any(idx)) {
+    y <- iconv(x[idx], from = "Windows-1252", to = "UTF-8")
+    x[idx][!is.na(y)] <- y[!is.na(y)]
+  }
+  x
+}
+```
 
 ---
 
-## 📜 Lisens
-Legg ønsket lisens i `LICENSE` (f.eks. MIT).
+### 3.6 QC: R kan automatisk lage avvikslister (f.eks. mangler løpenr)
+R kan skrive en QC‑fil med NPRId som mangler løpenr, og eventuelt stoppe. 
+
+```r
+if (nrow(missing_map) > 0) {
+  miss_path <- file.path(USER$out_dir, paste0("QC_missing_lopenr_NPRId_", suffix, ".csv"))
+  write_csv(missing_map, miss_path)
+  if (isTRUE(USER$strict_lopenr)) stop_user("STOPP: mangler løpenr")
+}
+```
+
+---
 
