@@ -187,9 +187,7 @@ FROM #HV WHERE År = 2025 GROUP BY MONTH(StartDato);
 SELECT MONTH(StartDato) AS måned, count(*) AS AntallRader
 FROM #HMN WHERE År = 2025 GROUP BY MONTH(StartDato);
 ```
-citeturn6search1
 
-**Lederpoeng:** Når samme ting gjentas 3 ganger, øker risikoen for små forskjeller og mer vedlikehold. R gjør dette i én loop med felles regler. 
 ---
 
 ## 3) Hva gjør R‑pipeline smartere (og tryggere)?
