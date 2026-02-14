@@ -14,7 +14,7 @@ I Excel/csv ser begge disse ofte ut som **blanke celler** ("(Blanks)"):
 
 ```text
 NPRId;KommuneNr
-1002;
+1;
 ```
 
 ### B) **Tom tekstverdi** (det finnes tegn, men ser tomt ut)
@@ -23,8 +23,8 @@ NPRId;KommuneNr
 
 ```text
 NPRId;KommuneNr
-1003;""
-1004; 
+3;""
+4; 
 ```
 
 **Viktig:** Excel viser ofte både A og B som «blankt», men datasystemer kan behandle dem forskjellig.
@@ -37,15 +37,15 @@ La oss si at input-filen har fire rader:
 
 ```text
 NPRId;KommuneNr
-1001;0301
-1002;
-1003;""
-1004; 
+1;0301
+2;
+3;""
+4; 
 ```
 
-- Rad 1002: *helt tomt felt* (type A)
-- Rad 1003: *tom tekstverdi* (type B: `""`)
-- Rad 1004: *mellomrom* (type B: `" "`)
+- Rad 2: *helt tomt felt* (type A)
+- Rad 3: *tom tekstverdi* (type B: `""`)
+- Rad 4: *mellomrom* (type B: `" "`)
 
 ---
 
