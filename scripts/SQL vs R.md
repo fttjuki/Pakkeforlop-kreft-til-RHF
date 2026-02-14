@@ -1,17 +1,14 @@
-# Notat til leder (enkelt språk): SQL‑rutine vs R‑pipeline (samme fag, bedre drift)
+#  SQL‑rutine vs R‑pipeline 
 
-> **Mål:** Vise forskjellen mellom dagens manuelle SQL‑rutine og en automatisert R‑pipeline, med eksempler fra begge. Fokus er drift: tid, risiko og kvalitet – ikke «programmering». citeturn1search1turn6search1turn5search1turn4search2
-
----
-
-## 1) Kort oppsummering (30 sek)
-- **I dag:** SQL‑scriptet krever at man endrer måned/år og filnavn manuelt, og gjør mange like steg for flere regioner. citeturn6search1
-- **Med R:** Man endrer bare noen få innstillinger (USER), og trykker «Run». Resten går automatisk: riktig periode, riktig fil, alle regioner, lagring, QC‑sjekk. citeturn5search1turn4search2
-- **Resultat:** Samme leveranseinnhold, men mindre manuelt arbeid og lavere feilrisiko. citeturn1search1turn6search1turn4search2
+## 1) process i dag
+- **1** Første rad måtte slettes manuelt fordi Power BI la inn en ekstra header‑linje.Kolonne M måtte slettes manuelt fordi den ofte var tom eller ubrukelig.
+- **2** Datoer måtte skrives inn manuelt i SQL‑koden, noe som skapte høy risiko for feil.I mars måtte prosessen kjøres to ganger (for januar og februar) pga. manuelle endringer.
+- **3** Alle CSV‑filer måtte åpnes og lagres manuelt etter at de var behandlet.
+- **4** KommuneNr måtte fylles inn manuelt for rader der det manglet.
 
 ---
 
-## 2) Hvor er «manuell risiko» i SQL‑rutinen? (konkrete eksempler)
+## 2) Hvor er «manuell risiko» i SQL‑rutinen? 
 
 ### 2.1 Måned/år må endres manuelt (hver gang)
 SQL‑scriptet sier eksplisitt at perioden må endres hver måned/år. citeturn6search1
@@ -295,20 +292,3 @@ if (nrow(missing_map) > 0) {
 
 ---
 
-## 4) «R erstatter ikke SQL» – et praktisk kompromiss
-Hvis M ønsker å beholde SQL for database‑logikk, kan R fortsatt gi gevinst som **driftsmotor**:
-- velger periode (months)
-- finner inputfiler
-- kjører likt for alle regioner
-- lagrer resultat + QC
-
-Dette følger også poenget i presentasjonen: SQL har flere manuelle steg, mens R kan automatisere dem (loop, dato‑logikk, automatisk lagring). citeturn1search1turn4search2turn5search1
-
----
-
-## 5) Lav‑risiko pilot (1 leveranse)
-1. Kjør SQL som i dag (referanse). citeturn6search1
-2. Kjør R med samme måned (STEP2). citeturn5search1turn4search2
-3. Sammenlign: antall rader per region + et par kontrollsummer.
-
-**Hvis det matcher:** Vi har bevist at vi kan spare tid og redusere risiko uten å endre faglig innhold. citeturn1search1turn6search1turn4search2
