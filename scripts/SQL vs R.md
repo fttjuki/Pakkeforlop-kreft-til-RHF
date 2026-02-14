@@ -1,10 +1,12 @@
 #  SQL‑rutine vs R‑pipeline 
 
 ## 1) process i dag
-- **1** Første rad måtte slettes manuelt fordi Power BI la inn en ekstra header‑linje.Kolonne M måtte slettes manuelt fordi den ofte var tom eller ubrukelig.
-- **2** Datoer måtte skrives inn manuelt i SQL‑koden, noe som skapte høy risiko for feil.I mars måtte prosessen kjøres to ganger (for januar og februar) pga. manuelle endringer.
-- **3** Alle CSV‑filer måtte åpnes og lagres manuelt etter at de var behandlet.
-- **4** KommuneNr måtte fylles inn manuelt for rader der det manglet.
+-  Første rad slettes manuelt fordi Power BI la inn en ekstra header‑linje.
+-  Kolonne M slettes manuelt fordi den ofte var tom eller ubrukelig.
+-  Datoer skrives inn manuelt i SQL‑koden, noe som skapte høy risiko for feil.
+-  I mars må prosessen kjøres to ganger (for januar og februar) pga. manuelle endringer.
+-  Alle CSV‑filer åpnes og lagres manuelt etter at de var behandlet.
+-  KommuneNr fylles inn manuelt for rader der det manglet.
 
 ---
 
