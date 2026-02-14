@@ -174,7 +174,7 @@ LEFT JOIN #NPRId_desember_2025 b ON a.NPRId=b.NPRId
 LEFT JOIN #Fiks_HMN_Kom c ON a.NPRId=c.NPRId
 WHERE b.lopenr != 'NULL' AND a.NPRId != 'NPRId';
 ```
-citeturn6search1
+
 
 **d) Kontroller (MONTH(StartDato) …) gjentas 3 ganger:**
 ```sql
@@ -223,7 +223,7 @@ month_to_suffix <- function(month_date) {
 
 **Hvorfor dette er smart:**
 - Man slipper å skrive `des25` manuelt i flere filnavn.
-- Mindre risiko for at bestilling/retur/utlevering får ulike navn. citeturn4search2turn5search1
+- Mindre risiko for at bestilling/retur/utlevering får ulike navn. 
 
 ---
 
