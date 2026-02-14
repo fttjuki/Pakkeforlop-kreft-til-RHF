@@ -66,7 +66,7 @@ UPDATE #Fiks_HV_Kom  SET komnrhjem2 = '1135' WHERE NPRId = '3602577' AND aar = 2
 - Slike «spesialtilfeller» kan bli glemt eller kopiert feil i fremtiden. 
 ---
 
-## 2b) (NYTT) Hvor mange ganger må man endre «måned/dato» i SQL – og hvor mye gjentar seg?
+## 2b) Hvor mange ganger må man endre «måned/dato» i SQL – og hvor mye gjentar seg?
 
 > **Kort og tydelig:** SQL: minst **7 manuelle endringer** + **3× kopiert logikk** per leveranse → **høy drift‑risiko**. 
 
