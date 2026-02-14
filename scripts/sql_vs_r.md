@@ -1,6 +1,6 @@
-# Notat til leder (enkelt språk): SQL‑rutine vs R‑pipeline (samme fag, bedre drift)
+# SQL‑rutine vs R‑pipeline 
 
-> **Mål:** Vise forskjellen mellom dagens manuelle SQL‑rutine og en automatisert R‑pipeline, med eksempler fra begge. Fokus er drift: tid, risiko og kvalitet – ikke «programmering». citeturn1search1turn6search1turn5search1turn4search2
+> **Mål:** Vise forskjellen mellom dagens SQL‑rutine og en automatisert R‑pipeline, med eksempler fra begge. citeturn1search1turn6search1turn5search1turn4search2
 
 ---
 
