@@ -190,7 +190,7 @@ FROM #HMN WHERE År = 2025 GROUP BY MONTH(StartDato);
 
 ---
 
-## 3) Hva gjør R‑pipeline smartere (og tryggere)?
+## 3) Hva gjør R‑pipeline smartere og tryggere?
 
 ### 3.1 I R endrer man bare én ting: USER‑innstillinger (ikke masse kode)
 Startfila sier tydelig at USER‑listen er det eneste man normalt skal endre. 
