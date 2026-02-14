@@ -10,7 +10,7 @@ I Excel/csv ser begge disse ofte ut som **blanke celler** ("(Blanks)"):
 
 ### A) **Tom celle** (ingen tegn)
 - Det står **ingenting** i feltet.
-- I en CSV kan det se slik ut (mellom `;`):
+- I en CSV kan det se slik ut:
 
 ```text
 NPRId;KommuneNr
