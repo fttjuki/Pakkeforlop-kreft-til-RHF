@@ -23,7 +23,7 @@ NPRId;KommuneNr
 
 ```text
 NPRId;KommuneNr
-3;""
+3;    ""
 4; 
 ```
 
@@ -37,9 +37,9 @@ La oss si at input-filen har fire rader:
 
 ```text
 NPRId;KommuneNr
-1;0301
+1;    0301
 2;
-3;""
+3;    ""
 4; 
 ```
 
