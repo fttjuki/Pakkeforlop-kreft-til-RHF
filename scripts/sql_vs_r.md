@@ -1,13 +1,9 @@
-# Notat til leder (enkelt språk): SQL‑rutine vs R‑pipeline (samme fag, bedre drift)
+# SQL‑rutine vs R‑pipeline 
 
-> **Mål:** Vise forskjellen mellom dagens manuelle SQL‑rutine og en automatisert R‑pipeline, med eksempler fra begge. Fokus er drift: tid, risiko og kvalitet – ikke «programmering». citeturn1search1turn6search1turn5search1turn4search2
-
----
-
-## 1) Kort oppsummering (30 sek)
-- **I dag:** SQL‑scriptet krever at man endrer måned/år og filnavn manuelt, og gjør mange like steg for flere regioner. citeturn6search1
-- **Med R:** Man endrer bare noen få innstillinger (USER), og trykker «Run». Resten går automatisk: riktig periode, riktig fil, alle regioner, lagring, QC‑sjekk. citeturn5search1turn4search2
-- **Resultat:** Samme leveranseinnhold, men mindre manuelt arbeid og lavere feilrisiko. citeturn1search1turn6search1turn4search2
+## 1) Kort oppsummering 
+- **I dag:** SQL‑scriptet krever at man endrer måned/år og filnavn manuelt, og gjør mange like steg for 3 RHF. 
+- **Med R:** Man endrer bare noen få innstillinger (USER), og trykker «Run». Resten går automatisk: riktig periode, riktig fil, alle regioner, lagring.
+- **Resultat:** Samme leveranseinnhold, men mindre manuelt arbeid og lavere feilrisiko. 
 
 ---
 
