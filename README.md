@@ -13,7 +13,7 @@
 ## 2) Hvor er «manuell risiko» i SQL‑rutinen? 
 
 ### 2.1 Måned/år må endres manuelt (hver gang)
-SQL‑scriptet sier eksplisitt at perioden må endres hver måned/år. citeturn6search1
+SQL‑scriptet sier eksplisitt at perioden må endres hver måned/år. 
 
 ```sql
 /*
