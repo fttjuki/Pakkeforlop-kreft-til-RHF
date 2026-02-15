@@ -450,7 +450,7 @@ main(USER)
 
 ### Hvirdan å kjøre skript?
 ### **1. Åpne R‑prosjektet – dobbeltklikk på .Rproj-filen.
-### ** 2. Åpne skriptet – klikk på Ny_versjon.R i filpanelet (eller dra den inn).
+### ** 2. Åpne skriptet 
 ### ** 3. Endre months – skriv inn riktig måned (f.eks. "2026-02-01").
 ### ** 4. Endre step – velg STEP1 eller STEP2.
 ### ** 5. Lagre – Ctrl+S.
