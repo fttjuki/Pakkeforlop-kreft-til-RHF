@@ -205,7 +205,7 @@ connect_somhoved <- function() {
   )
 }
 ```
-**Hva gjør det:** Åpner en forbindelse til NPR-databasen på serveren `NPRSQLprod`
+**Hva gjør det:** Åpner databasen 
 
 #### `fetch_geo_fixes()` - Hent kommune/bydel fra databasen
 ```r
