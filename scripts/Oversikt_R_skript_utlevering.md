@@ -99,7 +99,6 @@ fix_mojibake_utf8 <- function(x) {
 ```
 **Hva gjør det:** Hvis norske bokstaver ble ødelagt og viser seg som `Ã` eller `Â` istedenfor `æ`, så reparerer denne funksjonen det! 
 
-**Eksempel:** `"Pakkeforløp"` ble ødelagt til `"Pakkeforløp"` → funksjonen fikser det tilbake
 
 ---
 
