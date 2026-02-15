@@ -1,4 +1,4 @@
-BRUKERVEILEDNING (for deg som ikke koder)
+BRUKERVEILEDNING 
 =================================
 
 Dette er en 2-stegs prosess.
