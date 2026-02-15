@@ -22,12 +22,12 @@ SQL‑scriptet sier eksplisitt at perioden må endres hver måned/år.
 ```
 
 **Hvorfor dette er en risiko:**
-- Det er lett å glemme å oppdatere noe, eller oppdatere noe *delvis*. citeturn6search1
+- Det er lett å glemme å oppdatere noe, eller oppdatere noe *delvis*. 
 
 ---
 
 ### 2.2 Måned ligger også i tabellnavn og filnavn
-SQL har månedsspesifikk tabell og forventer månedsspesifikk returfil fra Fihr. 
+SQL har månedsspesifikk tabell og forventer månedsspesifikk returfil. 
 
 ```sql
 DROP TABLE IF EXISTS #NPRId_desember_2025; --måneden må endres hver måned
