@@ -1,16 +1,7 @@
 # ==============================================================================
 # Pakkeforløp Kreft til RHF – R-pipeline som matcher SQL-gullstandard
 # Gullstandard: Individ_PakkeforløpKreft_HSØ_HV_HMN.sql
-#
-# v6 – PRODUKSJONSKLAR:
-#  * FIKS for Pakkeforløp/æøå som blir til "Ã¦/Ã¸" (mojibake)
-#    - Årsak: UTF-8 tekst tolkes som Windows-1252.
-#    - Løsning: (1) detekter encoding per fil, (2) les med riktig encoding,
-#               (3) reparer mojibake defensivt hvis det finnes.
-#  * Bevarer SQL-adferd: vi trimmer IKKE Pakkeforløp (SQL trimmer kun lopenr).
-#  * Skriver ut CSV som UTF-8 med BOM (best for Excel + norske tegn).
-#
-# NB: DødsDato håndteres uendret (som i v5). Bruker kan ignorere den.
+
 # ==============================================================================
 
 suppressPackageStartupMessages({
@@ -628,5 +619,6 @@ main <- function(USER) {
   for (sfx in suffixes) process_suffix(USER, sfx)
   invisible(TRUE)
 }
+
 
 
