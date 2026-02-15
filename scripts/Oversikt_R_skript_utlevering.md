@@ -353,7 +353,7 @@ process_suffix <- function(USER, suffix) {
     return(invisible(list(status = "step1_done", req_path = req_path)))
   }
   
-  # 4) Les løpenummersvar fra databasen
+  # 4) Les løpenummersfil
   id_map <- read_lopenr_file(USER, suffix)
   validate_lopenr_map(USER, all_rows, id_map, suffix)
   
@@ -377,10 +377,10 @@ process_suffix <- function(USER, suffix) {
 **STEP 1** (bestilling):
 - Les alle input-filer fra alle 3 regioner
 - Trekk ut unike pasientnummere (NPRId)
-- Skriv til bestillingsfil som sendes til NPR
+- bestillingsfil av løpenr
 
 **STEP 2** (levering):
-- Les løpenummersvar fra NPR
+- Les løpenummersfil
 - Hent geo-fikser fra databasen
 - Lag ferdig leveringsfiler for hver region separat
 
