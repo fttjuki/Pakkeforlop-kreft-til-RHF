@@ -242,7 +242,7 @@ region_objs <- set_names(CFG$regions) |>
 ---
 
 ### 3.4 R finner riktig inputfil og kan stoppe hvis noe mangler
-Dette reduserer risikoen for å bruke feil fil eller feil periode. citeturn5search1turn4search2
+Dette reduserer risikoen for å bruke feil fil eller feil periode. 
 
 ```r
 if (length(hits) == 0 && isTRUE(USER$strict_input)) {
