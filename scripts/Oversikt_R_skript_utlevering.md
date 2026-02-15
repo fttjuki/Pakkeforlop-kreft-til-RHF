@@ -1,6 +1,5 @@
 ## **Oversikt - Hva gjør skripten?**
 
-Denne R-skripten er som en "fabrikk" som **henter og organiserer data om kreftpasienter** fra Norsk Pasientregister (NPR) og leverer det til de tre helseregionene (HSØ, HV, HMN) i et standardisert format.
 
 ---
 
