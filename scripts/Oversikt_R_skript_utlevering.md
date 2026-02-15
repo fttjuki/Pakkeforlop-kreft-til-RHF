@@ -170,7 +170,7 @@ read_lopenr_file <- function(USER, suffix) {
 }
 ```
 **Hva gjør det:** 
-- Leser filen som ble returnert fra NPR-databasen
+- Leser løpenr-filen 
 - Den inneholder koblingen: `NPRId` → `løpenr`
 
 #### `validate_lopenr_map()` - Sjekk om alle pasientene fikk løpenummer
