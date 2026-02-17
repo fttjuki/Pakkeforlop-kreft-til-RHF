@@ -1,3 +1,4 @@
+![R CI](https://github.com/fttjuki/Pakkeforlop-kreft-til-RHF)
 #  SQL‑rutine vs R‑pipeline 
 
 ## 1) process i dag
