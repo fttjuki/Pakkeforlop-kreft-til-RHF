@@ -1,7 +1,6 @@
 # ==============================================================================
 # Pakkeforløp Kreft til RHF – R-pipeline som matcher SQL-gullstandard
 # Gullstandard: Individ_PakkeforløpKreft_HSØ_HV_HMN.sql
-
 # ==============================================================================
 
 suppressPackageStartupMessages({
@@ -619,6 +618,7 @@ main <- function(USER) {
   for (sfx in suffixes) process_suffix(USER, sfx)
   invisible(TRUE)
 }
+
 
 
 
