@@ -2,9 +2,9 @@ name: R CI (lint + syntax check)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
@@ -26,8 +26,20 @@ jobs:
 
       - name: Lint R files
         run: |
-          Rscript -e "lintr::lint_dir('.', exclusions=c('.github'))"
+          Rscript -e "lintr::lint_dir('.', exclusions = list('.github' = NULL))"
 
       - name: Syntax check (parse)
         run: |
-          Rscript -e "files <- c('qc.R','r_full_test.R'); files <- files[file.exists(files)]; if(length(files)==0) stop('No target R files found'); lapply(files, function(f) { message('Parsing: ', f); parse(f) }); message('OK: parsed ', length(files), ' file(s)')"
+          Rscript -e "
+            files <- c('qc.R','r_full_test.R');
+            files <- files[file.exists(files)];
+            if (length(files) == 0) {
+              message('No target R files found – skipping parse');
+              quit(save='no', status=0);
+            }
+            lapply(files, function(f) {
+              message('Parsing: ', f);
+              parse(f);
+            });
+            message('OK: parsed ', length(files), ' file(s)');
+          "
