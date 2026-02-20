@@ -1,4 +1,5 @@
-[![R CI](https://github.com/fttjuki/Pakkeforlop-kreft-til-RHF/actions/workflows/ci.yml/badge.svg)](https://github.com/fttjuki/Pakkeforlop-kreft-til-RHF/actions/workflows/ci.yml)
+![R CI](https://github.com/fttjuki/Pakkeforlop-kreft-til-RHF/actions/workflows/ci.yml/badge.svg)
+
 
 #  SQL‑rutine vs R‑pipeline 
 
