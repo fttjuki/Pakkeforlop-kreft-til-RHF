@@ -20,26 +20,31 @@ jobs:
         with:
           use-public-rspm: true
 
-      - name: Install dependencies (minimal)
+      - name: Install dependencies
         run: |
-          Rscript -e "install.packages(c('lintr'), repos='https://cloud.r-project.org')"
+          Rscript -e "install.packages('lintr', repos='https://cloud.r-project.org')"
 
       - name: Lint R files
         run: |
-          Rscript -e "lintr::lint_dir('.', exclusions = list('.github' = NULL))"
+          Rscript -e "
+            library(lintr)
+            files <- list.files('.', pattern='\\.R$', recursive=TRUE)
+            if (length(files) == 0) {
+              message('No R files found — skipping lint.')
+              quit(save='no', status=0)
+            }
+            message('Linting ', length(files), ' R files...')
+            lint_dir('.', exclusions = list('.github' = NULL))
+          "
 
       - name: Syntax check (parse)
         run: |
           Rscript -e "
-            files <- c('qc.R','r_full_test.R');
-            files <- files[file.exists(files)];
+            files <- c('qc.R','r_full_test.R')
+            files <- files[file.exists(files)]
             if (length(files) == 0) {
-              message('No target R files found – skipping parse');
-              quit(save='no', status=0);
+              message('No target R files found — skipping parse.')
+              quit(save='no', status=0)
             }
-            lapply(files, function(f) {
-              message('Parsing: ', f);
-              parse(f);
-            });
-            message('OK: parsed ', length(files), ' file(s)');
+            lapply(files, function(f) { message('Parsing: ', f); parse(f) })
           "
