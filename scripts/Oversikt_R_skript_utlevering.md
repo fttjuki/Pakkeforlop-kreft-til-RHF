@@ -1,4 +1,4 @@
-## **Oversikt - Hva gjør skripten?**
+## **Oversikt - Hva gjør R skripten?**
 
 
 ---
