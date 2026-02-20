@@ -2,7 +2,7 @@
 # 01_run.R (START HER)
 
 # ------------------------------------------------------------------------------
-# Dette er "startfila" / inngangspunktet for hele prosjektet.
+# Dette er inngangspunktet for hele prosjektet.
 
 # 1) Last inn nødvendige pakker (tidyverse, dato-håndtering, database osv.)
 # 2) Definer innstillinger (USER) som styrer hele kjøringen
@@ -75,6 +75,7 @@ message("Total tid: ", round(difftime(slutt_tid, start_tid, units = "mins"), 2),
 # Skriver total tid til konsollen.
  
  
+
 
 
 
